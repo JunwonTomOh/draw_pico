@@ -61,9 +61,9 @@ namespace{
   float lumi = 1;
 }
 
-bool Contains(const string& text, const string& pattern){
-  return text.find(pattern) != string::npos;
-}
+// bool Contains(const string& text, const string& pattern){
+//   return text.find(pattern) != string::npos;
+// }
 
 string getLuminosityString(string const & years_string_a) {
   float total_luminosity = 0;

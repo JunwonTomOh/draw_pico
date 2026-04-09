@@ -16,7 +16,8 @@
 #include <ctime>
 #include <getopt.h>
 #include <regex>
-#include <experimental/filesystem>
+// #include <experimental/filesystem>
+#include <filesystem>
 
 #include "TError.h" // Controls error level reporting
 #include "TColor.h"
@@ -44,7 +45,8 @@ using namespace ZgFunctions;
 using namespace ZgUtilities;
 
 using json = nlohmann::json;
-namespace fs = std::experimental::filesystem;
+// namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 using namespace fs;
 
 set<string> vtos(vector<string> v){
@@ -52,8 +54,8 @@ set<string> vtos(vector<string> v){
   return out;
 }
 
-bool Contains(const string& text, const string& pattern){
-  return text.find(pattern) != string::npos;
+// bool Contains(const string& text, const string& pattern){
+//   return text.find(pattern) != string::npos;
 }
 
 string getLuminosityString(vector<string> years) {
