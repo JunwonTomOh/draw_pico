@@ -5,6 +5,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
 
 #include "TLorentzVector.h"
 #include "TMath.h"
@@ -58,13 +59,13 @@ namespace ZgFunctions {
   }
 
   double map_deltaphi(vector<double> phi_values) {
-    if (fabs(phi_values[0]) > 3.1416 || fabs(phi_values[1]) > 3.1416)
+    if (std::abs(phi_values[0]) > 3.1416 || std::abs(phi_values[1]) > 3.1416)
       return -999.0;
     return deltaPhi(phi_values[0], phi_values[1]);
   }
 
   double map_deltar(vector<double> inputs) {
-    if (fabs(inputs[1]) > 3.1416 || fabs(inputs[3]) > 3.1416)
+    if (std::abs(inputs[1]) > 3.1416 || std::abs(inputs[3]) > 3.1416)
       return -999.0;
     return deltaR(inputs[0], inputs[1], inputs[2], inputs[3]);
   }
@@ -366,7 +367,7 @@ namespace ZgFunctions {
       [](const Baby &b) -> NamedFunc::ScalarType{
     if (b.SampleTypeString().Contains("-"))
       return 1.0; //data
-    if (isinf(b.sys_el()->at(0)) || isnan(b.sys_el()->at(0))) 
+    if (std::isinf(b.sys_el()->at(0)) || std::isnan(b.sys_el()->at(0))) 
       return 1.0;
     float norm = 1.0;
     if (b.SampleTypeString() == "2016APV")
@@ -391,7 +392,7 @@ namespace ZgFunctions {
   //weight implementing downward variation in electron weights (efficiency)
   const NamedFunc sys_w_el_dn("sys_w_el_dn",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    if (isinf(b.sys_el()->at(1)) || isnan(b.sys_el()->at(1))) 
+    if (std::isinf(b.sys_el()->at(1)) || std::isnan(b.sys_el()->at(1))) 
       return 1.0;
     float norm = 1.0;
     if (b.SampleTypeString() == "2016APV")
@@ -416,7 +417,7 @@ namespace ZgFunctions {
   //weight implementing upward variation in muon weights (efficiency)
   const NamedFunc sys_w_mu_up("sys_w_mu_up",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    if (isinf(b.sys_mu()->at(0)) || isnan(b.sys_mu()->at(0))) 
+    if (std::isinf(b.sys_mu()->at(0)) || std::isnan(b.sys_mu()->at(0))) 
       return 1.0;
     return b.sys_mu()->at(0)/b.w_mu();
   });
@@ -424,7 +425,7 @@ namespace ZgFunctions {
   //weight implementing downward variation in muon weights (efficiency)
   const NamedFunc sys_w_mu_dn("sys_w_mu_dn",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    if (isinf(b.sys_mu()->at(0)) || isnan(b.sys_mu()->at(0)) 
+    if (std::isinf(b.sys_mu()->at(0)) || std::isnan(b.sys_mu()->at(0)) 
         || b.sys_mu()->at(0)==2.0)
       return 1.0;
     return (2.0-b.sys_mu()->at(0))/b.w_mu();
@@ -477,7 +478,7 @@ namespace ZgFunctions {
   //weights varying trigger efficiency
   const NamedFunc sys_trig_el_up("sys_trig_el_up",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    //if (isinf(b.sys_trig_el()->at(0)) || isnan(b.sys_trig_el()->at(0))) 
+    //if (std::isinf(b.sys_trig_el()->at(0)) || std::isnan(b.sys_trig_el()->at(0))) 
     //  return 1.0;
     if (b.w_trig()==0)
       return 1.0;
@@ -487,7 +488,7 @@ namespace ZgFunctions {
   //weights varying trigger efficiency
   const NamedFunc sys_trig_el_dn("sys_trig_el_dn",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    //if (isinf(b.sys_trig_el()->at(1)) || isnan(b.sys_trig_el()->at(1))) 
+    //if (std::isinf(b.sys_trig_el()->at(1)) || std::isnan(b.sys_trig_el()->at(1))) 
     //  return 1.0;
     if (b.w_trig()==0)
       return 1.0;
@@ -497,7 +498,7 @@ namespace ZgFunctions {
   //weights varying trigger efficiency
   const NamedFunc sys_trig_mu_up("sys_trig_mu_up",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    //if (isinf(b.sys_trig_mu()->at(0)) || isnan(b.sys_trig_mu()->at(0))) 
+    //if (std::isinf(b.sys_trig_mu()->at(0)) || std::isnan(b.sys_trig_mu()->at(0))) 
     //  return 1.0;
     if (b.w_trig()==0)
       return 1.0;
@@ -507,7 +508,7 @@ namespace ZgFunctions {
   //weights varying trigger efficiency
   const NamedFunc sys_trig_mu_dn("sys_trig_mu_dn",
       [](const Baby &b) -> NamedFunc::ScalarType{
-    //if (isinf(b.sys_trig_mu()->at(1)) || isnan(b.sys_trig_mu()->at(1))) 
+    //if (std::isinf(b.sys_trig_mu()->at(1)) || std::isnan(b.sys_trig_mu()->at(1))) 
     //  return 1.0;
     if (b.w_trig()==0)
       return 1.0;
@@ -652,7 +653,7 @@ namespace ZgFunctions {
     if (b.photon_pflavor()->at(0) != 1)
       return 1.;
     vector<float> dnn_input = {b.photon_pt()->at(0), 
-        fabs(b.photon_eta()->at(0)), b.photon_idmva()->at(0),
+        std::abs(b.photon_eta()->at(0)), b.photon_idmva()->at(0),
         static_cast<float>(b.photon_energyErr()->at(0)/(b.photon_pt()->at(0)
          *TMath::CosH(b.photon_eta()->at(0))))};
     float dnn_output = 0.5;
@@ -668,9 +669,9 @@ namespace ZgFunctions {
         dnn_output = dnn_photon_weighter_r3->evaluate(dnn_input);
     }
     float sf = dnn_output/(1.0-dnn_output);
-    if (fabs(sf) > 5.0)
-      sf = 5.0*(sf/fabs(sf));
-    if (isnan(sf) || isinf(sf)) sf = 1.0;
+    if (std::abs(sf) > 5.0)
+      sf = 5.0*(sf/std::abs(sf));
+    if (std::isnan(sf) || std::isinf(sf)) sf = 1.0;
     return sf;
   }).EnableCaching(true);
 
@@ -1458,7 +1459,7 @@ namespace ZgFunctions {
           float min_dm = 999;
           for (unsigned ill = 0; ill<b.ll_pt()->size(); ill++) {
             if (b.ll_lepid()->at(ill) != reeval_pdgid) {
-              float dm = fabs(b.ll_m()->at(ill)-91.1876);
+              float dm = std::abs(b.ll_m()->at(ill)-91.1876);
               if (dm < min_dm) {
                 min_dm = dm;
                 pt = b.ll_pt()->at(ill);
@@ -1486,7 +1487,7 @@ namespace ZgFunctions {
                 lep2.SetPtEtaPhiM(b_el_pt.at(iel2), b.el_eta()->at(iel2), 
                                   b.el_phi()->at(iel2), 0.000511);
                 z = lep1 + lep2;
-                float dm = fabs(z.M()-91.1876);
+                float dm = std::abs(z.M()-91.1876);
                 if (dm < min_dm) {
                   min_dm = dm;
                   pt = z.Pt();
@@ -1515,7 +1516,7 @@ namespace ZgFunctions {
                 lep2.SetPtEtaPhiM(b_mu_pt.at(imu2), b.mu_eta()->at(imu2), 
                                   b.mu_phi()->at(imu2), 0.106);
                 z = lep1 + lep2;
-                float dm = fabs(z.M()-91.1876);
+                float dm = std::abs(z.M()-91.1876);
                 if (dm < min_dm) {
                   min_dm = dm;
                   pt = z.Pt();
@@ -2840,7 +2841,7 @@ namespace ZgFunctions {
       }
       dijet = j1+j2;
       return {dijet.Pt(), dijet.Eta(), dijet.Phi(), dijet.M(), 
-              fabs(j1.Eta()-j2.Eta()), deltaPhi(j1.Phi(), j2.Phi())};
+              std::abs(j1.Eta()-j2.Eta()), deltaPhi(j1.Phi(), j2.Phi())};
     }).EnableCaching(true);
   }
 
@@ -3352,9 +3353,9 @@ namespace ZgFunctions {
       if (evt_njet < 1)
         return -999.0;
       if (evt_njet < 2)
-        return fabs(var_lead_photon_eta.GetScalar(b)
+        return std::abs(var_lead_photon_eta.GetScalar(b)
                     -var_lead_jet_eta.GetScalar(b));
-      return fabs(var_lead_photon_eta.GetScalar(b)
+      return std::abs(var_lead_photon_eta.GetScalar(b)
           -(var_lead_jet_eta.GetScalar(b)
             +var_sublead_jet_eta.GetScalar(b))
           /2.0);

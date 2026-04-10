@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
   double obs = limit;
   limits_file.Close();
 
-  double sig_obs, sig_exp;
+  double sig_obs = 0.0, sig_exp = 0.0;
   if(do_signif){
     sig_obs = GetSignif(workdir+"/signif_obs.log");
     sig_exp = GetSignif(workdir+"/signif_exp.log");

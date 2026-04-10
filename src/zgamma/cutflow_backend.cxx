@@ -56,7 +56,7 @@ set<string> vtos(vector<string> v){
 
 // bool Contains(const string& text, const string& pattern){
 //   return text.find(pattern) != string::npos;
-}
+// }
 
 string getLuminosityString(vector<string> years) {
   float total_luminosity = 0;

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 #include "TError.h"
 #include "TLorentzVector.h"
@@ -1240,12 +1241,12 @@ int main() {
     if (b.SampleTypeString().Contains("202")) 
       is_run3 = true;
     if (!is_run3) {
-      return eval_cheby(w_jeteta_leadjet_r2, fabs(lead_jet_eta.GetScalar(b)))*
+      return eval_cheby(w_jeteta_leadjet_r2, std::abs(lead_jet_eta.GetScalar(b)))*
              eval_cheby(w_jeteta_subljet_r2, 
-                        fabs(sublead_jet_eta.GetScalar(b)));
+                        std::abs(sublead_jet_eta.GetScalar(b)));
     }
-    return eval_cheby(w_jeteta_leadjet_r3, fabs(lead_jet_eta.GetScalar(b)))*
-           eval_cheby(w_jeteta_subljet_r3, fabs(sublead_jet_eta.GetScalar(b)));
+    return eval_cheby(w_jeteta_leadjet_r3, std::abs(lead_jet_eta.GetScalar(b)))*
+           eval_cheby(w_jeteta_subljet_r3, std::abs(sublead_jet_eta.GetScalar(b)));
   });
 
   const NamedFunc w_photon_lowpt("w_photon_lowpt",
@@ -1280,7 +1281,7 @@ int main() {
     if (b.photon_pflavor()->at(0) != 1)
       return 1.;
     vector<float> dnn_input = {b.photon_pt()->at(0), 
-        fabs(b.photon_eta()->at(0)), b.photon_idmva()->at(0),
+        std::abs(b.photon_eta()->at(0)), b.photon_idmva()->at(0),
         static_cast<float>(b.photon_energyErr()->at(0)/(b.photon_pt()->at(0)
          *TMath::CosH(b.photon_eta()->at(0))))};
     float dnn_output = dnn_photon_weighter.evaluate(dnn_input);
@@ -1322,7 +1323,7 @@ int main() {
       //if (b.photon_pflavor()->at(0)==1) return 1.0;
       bool b_photon_isjet = static_cast<bool>(photon_isjet.GetScalar(b));
       float ph_pt = b.photon_pt()->at(0);
-      float ph_abseta = fabs(b.photon_eta()->at(0));
+      float ph_abseta = std::abs(b.photon_eta()->at(0));
       float ph_idmva = b.photon_idmva()->at(0);
       float ph_res = b.photon_energyErr()->at(0)/(b.photon_pt()->at(0));
       return get_w_fakephoton(run, b_photon_isjet, ph_pt, ph_abseta, ph_idmva,
