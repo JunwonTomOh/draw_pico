@@ -74,3 +74,6 @@ inc/core/baby_*.hpp
 src/core/baby.cpp
 src/core/baby_*.cpp
 .subdirs.mk
+
+# CMSSW
+CMSSW*/
