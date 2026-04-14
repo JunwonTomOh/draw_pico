@@ -12,12 +12,13 @@ import sys
 import fnmatch
 
 class DirStructure:
-    def __init__(self, src, inc, make, obj, exe):
+    def __init__(self, src, inc, make, obj, exe, analysis):
         self.src = src
         self.inc = inc
         self.make = make
         self.obj = obj
         self.exe = exe
+        self.analysis = analysis
 
 class Term(object):
     BLACK = '\033[30m'
@@ -57,10 +58,10 @@ def tryRemove(directory, pattern):
         for f in files:
             if fnmatch.fnmatch(f, pattern):
                 os.remove(os.path.join(root, f))
-        try: os.rmdir(root)
-        except OSError as e:
-            if e.errno != errno.ENOTEMPTY:
-                raise
+        # try: os.rmdir(root)
+        # except OSError as e:
+        #     if e.errno != errno.ENOTEMPTY:
+        #         raise
         
 def clean(dirs):
     tryRemove(".", "*~")
@@ -138,9 +139,18 @@ def genSubdirMake(dirs):
 def build(dirs, verbosity):
     genSubdirs(dirs)
     rpath = "DYLD_LIBRARY_PATH="+os.popen('echo $ROOTSYS/lib').read().split('\n')[0]
-    command = ["make","-j",str(multiprocessing.cpu_count()),"-k","-r","-R", rpath,
-               "SRCDIR="+dirs.src, "INCDIR="+dirs.inc,
-               "MAKEDIR="+dirs.make, "OBJDIR="+dirs.obj, "EXEDIR="+dirs.exe]
+    command = [
+        "make",
+        "-j",str(multiprocessing.cpu_count()),
+        "-k","-r","-R", 
+        rpath,
+        "SRCDIR="+dirs.src, 
+        "INCDIR="+dirs.inc,
+        "MAKEDIR="+dirs.make, 
+        "OBJDIR="+dirs.obj, 
+        "EXEDIR="+dirs.exe,
+        "ANALYSIS_DIRS="+dirs.analysis
+        ]
     if verbosity < 1:
         command.append("--silent")
     elif verbosity > 1:
@@ -171,7 +181,7 @@ def compile(mode, verbosity, dirs):
     elif mode== "print_vars":
         subprocess.check_call(["make","test","-r","-R","--silent",
                                "SRCDIR="+dirs.src, "INCDIR="+dirs.inc,
-                               "MAKEDIR="+dirs.make, "OBJDIR="+dirs.obj, "EXEDIR="+dirs.exe, "print_vars"])
+                               "MAKEDIR="+dirs.make, "OBJDIR="+dirs.obj, "EXEDIR="+dirs.exe, "ANALYSIS_DIRS="+dirs.analysis, "print_vars"])
     else:
         raise Exception("Unrecognized option: "+mode)
 
@@ -192,7 +202,18 @@ if __name__ == "__main__":
                         help = "Directory in which to place .o files")
     parser.add_argument("--exe_dir", default = "run",
                         help = "Directory in which to store .exe files")
+    parser.add_argument("--analysis", default="all", choices=["all", "higgsino", "zgamma"], 
+                        help="Select which analysis directories to build")
     args = parser.parse_args()
 
+    if args.analysis == "all":
+        analysis_dirs = "core higgsino zgamma pythonbindings"
+    elif args.analysis == "higgsino":
+        analysis_dirs = "core higgsino"
+    elif args.analysis == "zgamma":
+        analysis_dirs = "core zgamma"
+    else:
+        raise Exception("Unrecognized analysis option: "+args.analysis)
+
     compile(args.mode, args.verbosity,
-            DirStructure(args.src_dir, args.inc_dir, args.make_dir, args.obj_dir, args.exe_dir))
+            DirStructure(args.src_dir, args.inc_dir, args.make_dir, args.obj_dir, args.exe_dir, analysis_dirs))

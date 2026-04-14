@@ -32,9 +32,16 @@ BABY_DEPS := $(addprefix $(MAKEDIR)/core/baby_, $(addsuffix .d, $(BABY_TYPES)))
 
 FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 
-HEADERS := $(call FILTER_OUT,.\#,$(shell find $(INCDIR) -name "*.hpp"))
-OBJSRCS := $(call FILTER_OUT,.\#,$(shell find $(SRCDIR) -name "*.cpp"))
-EXESRCS := $(call FILTER_OUT,.\#,$(shell find $(SRCDIR) -name "*.cxx"))
+ANALYSIS_DIRS ?= core higgsino zgamma
+
+HEADERS := $(call FILTER_OUT,.\#,$(shell for d in $(ANALYSIS_DIRS); do [ -d $(INCDIR)/$$d ] && find $(INCDIR)/$$d -name "*.hpp"; done))
+OBJSRCS := $(call FILTER_OUT,.\#,$(shell for d in $(ANALYSIS_DIRS); do [ -d $(SRCDIR)/$$d ] && find $(SRCDIR)/$$d -name "*.cpp"; done))
+EXESRCS := $(call FILTER_OUT,.\#,$(shell for d in $(ANALYSIS_DIRS); do [ -d $(SRCDIR)/$$d ] && find $(SRCDIR)/$$d -name "*.cxx"; done))
+
+# HEADERS := $(call FILTER_OUT,.\#,$(shell find $(INCDIR) -name "*.hpp"))
+# OBJSRCS := $(call FILTER_OUT,.\#,$(shell find $(SRCDIR) -name "*.cpp"))
+# EXESRCS := $(call FILTER_OUT,.\#,$(shell find $(SRCDIR) -name "*.cxx"))
+
 ALLSRCS := $(OBJSRCS) $(EXESRCS)
 EXECUTABLES := $(subst $(SRCDIR),$(EXEDIR),$(subst .cxx,.exe,$(EXESRCS)))
 OBJECTS := $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,.o,$(OBJSRCS))) $(OBJDIR)/core/baby.o $(BABY_OBJS)
