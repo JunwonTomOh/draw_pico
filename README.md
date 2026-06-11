@@ -16,7 +16,7 @@ Prerequisites: (Note, on UCSB servers, `source set_env.sh` can be used to fulfil
 Please run the below command to clone the repository
 
 ~~~~bash
-git clone git@github.com:richstu/draw_pico.git
+git clone --recurse-submodules git@github.com:richstu/draw_pico.git
 cd draw_pico
 ~~~~
 
@@ -31,6 +31,11 @@ or
 ~~~~bash
 scons
 ~~~~
+
+```
+./compile.py --analysis higgsino
+./run/higgsino/an_plot_triggers.exe --year 2016
+```
 
 ### Setup on UCSB servers
 

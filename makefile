@@ -32,7 +32,7 @@ BABY_DEPS := $(addprefix $(MAKEDIR)/core/baby_, $(addsuffix .d, $(BABY_TYPES)))
 
 FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 
-ANALYSIS_DIRS ?= core higgsino zgamma
+ANALYSIS_DIRS ?= core higgsino zgamma pythonbindings
 
 HEADERS := $(call FILTER_OUT,.\#,$(shell for d in $(ANALYSIS_DIRS); do [ -d $(INCDIR)/$$d ] && find $(INCDIR)/$$d -name "*.hpp"; done))
 OBJSRCS := $(call FILTER_OUT,.\#,$(shell for d in $(ANALYSIS_DIRS); do [ -d $(SRCDIR)/$$d ] && find $(SRCDIR)/$$d -name "*.cpp"; done))

@@ -58,10 +58,10 @@ def tryRemove(directory, pattern):
         for f in files:
             if fnmatch.fnmatch(f, pattern):
                 os.remove(os.path.join(root, f))
-        # try: os.rmdir(root)
-        # except OSError as e:
-        #     if e.errno != errno.ENOTEMPTY:
-        #         raise
+        try: os.rmdir(root)
+        except OSError as e:
+            if e.errno != errno.ENOTEMPTY:
+                raise
         
 def clean(dirs):
     tryRemove(".", "*~")
@@ -209,9 +209,9 @@ if __name__ == "__main__":
     if args.analysis == "all":
         analysis_dirs = "core higgsino zgamma pythonbindings"
     elif args.analysis == "higgsino":
-        analysis_dirs = "core higgsino"
+        analysis_dirs = "core higgsino pythonbindings"
     elif args.analysis == "zgamma":
-        analysis_dirs = "core zgamma"
+        analysis_dirs = "core zgamma pythonbindings"
     else:
         raise Exception("Unrecognized analysis option: "+args.analysis)
 

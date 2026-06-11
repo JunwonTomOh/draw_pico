@@ -160,6 +160,19 @@ int main(int argc, char *argv[]){
   //samples
   std::set<int> years;
   HigUtilities::parseYears(options.year_string, years);
+
+  std::set<std::string> years_for_files;
+
+  if (options.year_string == "2016") {
+    years_for_files = {"2016APV", "2016"};
+  } else if (options.year_string == "run2") {
+    years_for_files = {"2016APV", "2016", "2017", "2018"};
+  } else {
+    for (int year : years) {
+      years_for_files.insert(std::to_string(year));
+    }
+  }
+
   int lumi_precision = 1;
   if (HigUtilities::is_in_string_options(options.string_options, "paper_style"))
     lumi_precision = 0;
@@ -172,22 +185,35 @@ int main(int argc, char *argv[]){
     }
   }
 
-  string base_folder = "/net/cms25/cms25r0/pico/NanoAODv7/higgsino_klamath/";
+  // string base_folder = "/net/cms25/cms25r0/pico/NanoAODv7/higgsino_klamath/";
+  string base_folder = "/xrootd/store/user/jaebak/pico/higgsino_4b_adelie_v6/";
   string data_skim_met150_folder = "data/skim_met150/";
-  string data_skim_1l2j_folder = "data/skim_1l2j/";
+  // string data_skim_1l2j_folder = "data/skim_1l2j/";
+  string data_skim_higlep1T_folder = "data/skim_higlep1T/";
+  string data_skim_higlep2T_folder = "data/skim_higlep2T/";
+
+  string mc_base_folder = "/xrootd/store/user/jaebak/pico/higgsino_4b_adelie_v4/";
   string mc_skim_met150_folder = "mc/skim_met150/";
 
   vector<shared_ptr<Process> > procs_met150 = {
       Process::MakeShared<Baby_pico>("Data", Process::Type::data, 
-      kBlack, attach_folder(base_folder, years, data_skim_met150_folder, 
+      kBlack, attach_folder(base_folder, years_for_files, data_skim_met150_folder, 
       {"*.root"}), "1")};
   vector<shared_ptr<Process> > procs_met150_mc = {
       Process::MakeShared<Baby_pico>("t#bar{t} 1l", Process::Type::background, 
-      kBlack, attach_folder(base_folder, years, mc_skim_met150_folder, 
+      kBlack, attach_folder(mc_base_folder, years_for_files, mc_skim_met150_folder, 
       {"*TTJets_SingleLeptFromT*.root"}), "stitch")};
-  vector<shared_ptr<Process> > procs_1l2j = {
+  // vector<shared_ptr<Process> > procs_1l2j = {
+  //     Process::MakeShared<Baby_pico>("Data", Process::Type::data, 
+  //     kBlack, attach_folder(base_folder, years_for_files, data_skim_1l2j_folder, 
+  //     {"*.root"}), "1")};
+  vector<shared_ptr<Process> > procs_1lT = {
       Process::MakeShared<Baby_pico>("Data", Process::Type::data, 
-      kBlack, attach_folder(base_folder, years, data_skim_1l2j_folder, 
+      kBlack, attach_folder(base_folder, years_for_files, data_skim_higlep1T_folder, 
+      {"*.root"}), "1")};
+  vector<shared_ptr<Process> > procs_2lT = {
+      Process::MakeShared<Baby_pico>("Data", Process::Type::data, 
+      kBlack, attach_folder(base_folder, years_for_files, data_skim_higlep2T_folder, 
       {"*.root"}), "1")};
 
   // Set MC 
@@ -218,7 +244,11 @@ int main(int argc, char *argv[]){
 
   std::vector<std::shared_ptr<Process>> procs_data_met150_allyears = {};
   std::vector<std::shared_ptr<Process>> procs_mc_met150_allyears = {};
-  std::vector<std::shared_ptr<Process>> procs_data_1l2j_allyears = {};
+  // std::vector<std::shared_ptr<Process>> procs_data_1l2j_allyears = {};
+  
+  std::vector<std::shared_ptr<Process>> procs_data_1lT_allyears = {};
+  std::vector<std::shared_ptr<Process>> procs_data_2lT_allyears = {};
+  
   std::vector<std::vector<std::shared_ptr<Process>>> procs_data_ambb = {};
   std::vector<std::string> year_strings;
   std::vector<std::string> luminosity_year_string;
@@ -229,6 +259,14 @@ int main(int argc, char *argv[]){
     std::string iyear_lumi = "60";
     std::set<int> iyear_set = {iyear};
     short iyear_color = kRed;
+    std::set<std::string> iyear_set_for_files;
+
+    if (iyear == 2016) {
+      iyear_set_for_files = {"2016APV", "2016"};
+    } else {
+      iyear_set_for_files = {std::to_string(iyear)};
+    }
+
     if (iyear==2016) { 
       iyear_string = "2016";
       iyear_lumi = "35.9";
@@ -241,28 +279,36 @@ int main(int argc, char *argv[]){
     }
     procs_data_met150_allyears.push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string, Process::Type::data, iyear_color,
-        attach_folder(base_folder, iyear_set, data_skim_met150_folder, {"*.root"}), "stitch"));
+        attach_folder(base_folder, iyear_set_for_files, data_skim_met150_folder, {"*.root"}), "stitch"));
     procs_mc_met150_allyears.push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string, Process::Type::data, iyear_color,
-        attach_folder(base_folder, iyear_set, mc_skim_met150_folder, mctags["all"]), "stitch"));
-    procs_data_1l2j_allyears.push_back(
+        attach_folder(mc_base_folder, iyear_set_for_files, mc_skim_met150_folder, mctags["all"]), "stitch"));
+    // procs_data_1l2j_allyears.push_back(
+    //     Process::MakeShared<Baby_pico>("Data "+iyear_string, Process::Type::data, iyear_color,
+    //     attach_folder(base_folder, iyear_set_for_files, data_skim_1l2j_folder, {"*.root"}), "stitch"));
+
+    procs_data_1lT_allyears.push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string, Process::Type::data, iyear_color,
-        attach_folder(base_folder, iyear_set, data_skim_1l2j_folder, {"*.root"}), "stitch"));
+        attach_folder(base_folder, iyear_set_for_files, data_skim_higlep1T_folder, {"*.root"}), "stitch"));
+    procs_data_2lT_allyears.push_back(
+        Process::MakeShared<Baby_pico>("Data "+iyear_string, Process::Type::data, iyear_color,
+        attach_folder(base_folder, iyear_set_for_files, data_skim_higlep2T_folder, {"*.root"}), "stitch"));
+
     procs_data_ambb.push_back(std::vector<std::shared_ptr<Process>>());
     procs_data_ambb[year_idx].push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string+" #LT m_{bb} #GT < 100 GeV", 
         Process::Type::data, kRed,
-        attach_folder(base_folder, iyear_set, data_skim_met150_folder, {"*.root"}), 
+        attach_folder(base_folder, iyear_set_for_files, data_skim_met150_folder, {"*.root"}), 
         "stitch&&njet>=4&&hig_cand_am[0]<100"));
     procs_data_ambb[year_idx].push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string+" 100 #leq #LT m_{bb} #GT < 150 GeV", 
         Process::Type::data, kGreen,
-        attach_folder(base_folder, iyear_set, data_skim_met150_folder, {"*.root"}), 
+        attach_folder(base_folder, iyear_set_for_files, data_skim_met150_folder, {"*.root"}), 
         "stitch&&njet>=4&&hig_cand_am[0]>=100&&hig_cand_am[0]<150"));
     procs_data_ambb[year_idx].push_back(
         Process::MakeShared<Baby_pico>("Data "+iyear_string+"#LT m_{bb} #GT #geq 150 GeV", 
         Process::Type::data, kBlue,
-        attach_folder(base_folder, iyear_set, data_skim_met150_folder, {"*.root"}), 
+        attach_folder(base_folder, iyear_set_for_files, data_skim_met150_folder, {"*.root"}), 
         "stitch&&njet>=4&&hig_cand_am[0]>=150"));
     year_strings.push_back(iyear_string);
     luminosity_year_string.push_back(iyear_lumi);
@@ -384,55 +430,55 @@ int main(int argc, char *argv[]){
       pm.Push<EfficiencyPlot>(Axis(55, 0., 550., "met", "Offline p_{T}^{miss} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==1" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::el_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_met").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_met").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(30, 20., 170., Higfuncs::lead_signal_electron_pt, "Offline Electron p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==1&&150<=met&&met<200" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::el_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_leppt").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_leppt").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(13, 0., 1300., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==1&&150<=met&&met<200" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::el_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_ht_lowmet").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_ht_lowmet").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(13, 0., 1300., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==1&&200<=met&&met<300" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::el_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_ht_highmet").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1el_ht_highmet").YTitle("p_{T}^{miss} and Electron Triggers").LuminosityTag(total_luminosity_string);
       //muons
       pm.Push<EfficiencyPlot>(Axis(55, 0., 550., "met", "Offline p_{T}^{miss} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==1" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::mu_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_met").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_met").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(30, 20., 170., Higfuncs::lead_signal_muon_pt, "Offline Muon p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==1&&150<=met&&met<200" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::mu_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_leppt").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_leppt").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(13, 0., 1300., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==1&&150<=met&&met<200" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::mu_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_ht_lowmet").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_ht_lowmet").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(13, 0., 1300., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==1&&200<=met&&met<300" && Higfuncs::jetht_trigger, 
           (Higfuncs::met_trigger||Higfuncs::mu_trigger),
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_ht_highmet").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_1lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__1mu_ht_highmet").YTitle("p_{T}^{miss} and Muon Triggers").LuminosityTag(total_luminosity_string);
       //-------------6.5 table 1 plots (2l CR: lep_pt HT)-------------
-      //electrons
+            //electrons
       pm.Push<EfficiencyPlot>(Axis(30, 20., 170., Higfuncs::lead_signal_electron_pt, "Offline Max Electron p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==2&&(80<ll_m[0]&&ll_m[0]<100)" && (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
           Higfuncs::el_trigger,
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__2el_leppt").YTitle("Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_2lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__2el_leppt").YTitle("Electron Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(10, 0., 1000., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==2&&(80<ll_m[0]&&ll_m[0]<100)" && (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
           Higfuncs::el_trigger,
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__2el_ht").YTitle("Electron Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_2lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__2el_ht").YTitle("Electron Triggers").LuminosityTag(total_luminosity_string);
       //muons
       pm.Push<EfficiencyPlot>(Axis(30, 20., 170., Higfuncs::lead_signal_muon_pt, "Offline Max Muon p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==2&&(80<ll_m[0]&&ll_m[0]<100)" && (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
           Higfuncs::mu_trigger,
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__2mu_leppt").YTitle("Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_2lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__2mu_leppt").YTitle("Muon Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(10, 0., 1000., "ht", "H_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==2&&(80<ll_m[0]&&ll_m[0]<100)" && (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
           Higfuncs::mu_trigger,
-          procs_data_1l2j_allyears,true,all_plot_types).Tag("FixName:trig__eff__2mu_ht").YTitle("Muon Triggers").LuminosityTag(total_luminosity_string);
+          procs_data_2lT_allyears,true,all_plot_types).Tag("FixName:trig__eff__2mu_ht").YTitle("Muon Triggers").LuminosityTag(total_luminosity_string);
     }
     ////-------------Data vs MC comparison, not in AN-------------
     //pm.Push<EfficiencyPlot>(Axis(100, 150., 550., "met", "Offline p_{T}^{miss} [GeV]", {}),
@@ -611,7 +657,7 @@ int main(int argc, char *argv[]){
               Higfuncs::pass_filters && "njet>=2&&nel==1" && Higfuncs::jetht_trigger &&
               (ht >= singlelep_ht_bins[ht_bin_idx]) && (ht < singlelep_ht_bins[ht_bin_idx+1]) &&
               (met >= singlelep_met_bins[met_bin_idx]) && (met < singlelep_met_bins[met_bin_idx+1]),
-              Higfuncs::met_trigger || Higfuncs::el_trigger, procs_1l2j)
+              Higfuncs::met_trigger || Higfuncs::el_trigger, procs_1lT)
               .Tag("FixName:trig__eff_1e_htbin"+std::to_string(ht_bin_idx)+
               "_metbin"+std::to_string(met_bin_idx)+"_"+options.year_string)
               .YTitle("p_{T}^{miss} OR Single-e Triggers").LuminosityTag(total_luminosity_string);
@@ -624,23 +670,24 @@ int main(int argc, char *argv[]){
               Higfuncs::pass_filters && "njet>=2&&nmu==1" && Higfuncs::jetht_trigger &&
               (ht >= singlelep_ht_bins[ht_bin_idx]) && (ht < singlelep_ht_bins[ht_bin_idx+1]) &&
               (met >= singlelep_met_bins[met_bin_idx]) && (met < singlelep_met_bins[met_bin_idx+1]),
-              Higfuncs::met_trigger || Higfuncs::mu_trigger, procs_1l2j)
+              Higfuncs::met_trigger || Higfuncs::mu_trigger, procs_1lT)
               .Tag("FixName:trig__eff_1mu_htbin"+std::to_string(ht_bin_idx)+
               "_metbin"+std::to_string(met_bin_idx)+"_"+options.year_string)
               .YTitle("p_{T}^{miss} OR Single-#mu Triggers").LuminosityTag(total_luminosity_string);
         }
       }
+
       //Two leptons
       pm.Push<EfficiencyPlot>(Axis(twoel_pt_bins, Higfuncs::lead_signal_lepton_pt, "leading electron p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nel==2&&(80<ll_m[0]&&ll_m[0]<100)" && 
           (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
-          Higfuncs::el_trigger, procs_1l2j)
+          Higfuncs::el_trigger, procs_2lT)
           .Tag("FixName:trig__eff_2e_"+options.year_string)
           .YTitle("Single-e Triggers").LuminosityTag(total_luminosity_string);
       pm.Push<EfficiencyPlot>(Axis(twomu_pt_bins, Higfuncs::lead_signal_lepton_pt, "leading muon p_{T} [GeV]", {}),
           Higfuncs::pass_filters && "njet>=2&&nmu==2&&(80<ll_m[0]&&ll_m[0]<100)" && 
           (Higfuncs::met_trigger||Higfuncs::jetht_trigger), 
-          Higfuncs::mu_trigger, procs_1l2j)
+          Higfuncs::mu_trigger, procs_2lT)
           .Tag("FixName:trig__eff_2mu_"+options.year_string)
           .YTitle("Single-#mu Triggers").LuminosityTag(total_luminosity_string);
     }

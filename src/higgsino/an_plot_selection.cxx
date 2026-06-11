@@ -61,6 +61,7 @@ int main(int argc, char *argv[]){
   Palette colors("txt/colors.txt","default");
   script_utilities::ArgStruct options = script_utilities::get_options(
       argc, argv, "plot_variables,plot_nminus1,make_cutflow,make_pies");
+      // argc, argv, "plot_variables,plot_nminus1,make_cutflow");
   std::vector<PlotOpt> plt_lin = script_utilities::plot_lin(false);
   std::vector<PlotOpt> plt_log = script_utilities::plot_log(false);
   std::vector<PlotOpt> plt_shapes = script_utilities::plot_shapes();
